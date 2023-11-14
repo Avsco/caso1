@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Alquiler de Autos</string>
+    <string name="title">Simulador de alquiler de autos</string>
+    <string name="rentGenerated">Renta generada: %s</string>
+    <string name="carsToRent">Autos a rentar %d</string>
+    <string name="carsNoRent">Autos no rentados %d</string>
+    <string name="carsRent">Autos rentados %d</string>
+    <string name="daysRent">Dias rentados %d</string>
+
+    <plurals name="car">
+        <item quantity="one">%d auto</item>
+        <item quantity="other">%d autos</item>
+    </plurals>
+</resources>
