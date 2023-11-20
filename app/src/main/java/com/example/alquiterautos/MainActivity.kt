@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -38,6 +39,14 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import co.yml.charts.axis.AxisData
+import co.yml.charts.axis.DataCategoryOptions
+import co.yml.charts.common.model.Point
+import co.yml.charts.common.utils.DataUtils
+import co.yml.charts.ui.barchart.BarChart
+import co.yml.charts.ui.barchart.models.BarChartData
+import co.yml.charts.ui.barchart.models.BarChartType
+import co.yml.charts.ui.barchart.models.BarData
 import com.example.alquiterautos.model.CarRental
 import com.example.alquiterautos.ui.theme.AlquiterAutosTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -50,8 +59,7 @@ class MainActivity : ComponentActivity() {
             AlquiterAutosTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                    modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
                 ) {
                     LayoutRentCars()
                 }
@@ -135,8 +143,7 @@ fun LayoutRentCars(modifier: Modifier = Modifier, viewModel: CarRental = hiltVie
             Spacer(modifier = modifier.height(8.dp))
             Text(
                 text = stringResource(
-                    R.string.carsRent,
-                    dataState.filter
+                    R.string.carsRent, dataState.filter
                 )
             )
             Spacer(modifier = modifier.height(8.dp))
@@ -161,7 +168,74 @@ fun LayoutRentCars(modifier: Modifier = Modifier, viewModel: CarRental = hiltVie
                 )
             )
         }
+        Row(modifier = modifier.fillMaxWidth()) {
+            BarChartComposable()
+        }
     }
+}
+
+@Composable
+fun BarChartComposable(modifier: Modifier = Modifier) {
+    val stepSize = 5
+    val barsData = listOf(
+        BarData(
+            label = "",
+            point = Point(1f, 0f),
+            description = "asd",
+            color = MaterialTheme.colorScheme.secondary
+        ),
+        BarData(
+            label = "1 auto",
+            point = Point(2f, 1f),
+            description = "asd",
+            color = MaterialTheme.colorScheme.secondary
+        ),
+        BarData(
+            label = "2 autos",
+            point = Point(3f, 2f),
+            description = "asd",
+            color = MaterialTheme.colorScheme.secondary
+        ),
+        BarData(
+            label = "3 autos",
+            point = Point(4f, 3f),
+            description = "asd",
+            color = MaterialTheme.colorScheme.secondary
+        ),
+        BarData(
+            label = "4 autos",
+            point = Point(5f, 2f),
+            description = "asd",
+            color = MaterialTheme.colorScheme.secondary
+        ),
+    )
+
+    val xAxisData =
+        AxisData.Builder().axisStepSize(100.dp).steps(barsData.size - 1).bottomPadding(40.dp)
+            .startPadding(40.dp).labelData { index -> barsData[index].label }
+            .axisLineColor(MaterialTheme.colorScheme.tertiary)
+            .axisLabelColor(MaterialTheme.colorScheme.tertiary).build()
+
+    val yAxisData =
+        AxisData.Builder().steps(barsData.size - 1).labelAndAxisLinePadding(20.dp).axisOffset(20.dp)
+            .labelData { index -> (index * (100 / stepSize)).toString() }
+            .axisLineColor(MaterialTheme.colorScheme.tertiary)
+            .axisLabelColor(MaterialTheme.colorScheme.tertiary).build()
+
+    val barsDataTemp = BarChartData(
+        xAxisData = xAxisData,
+        yAxisData = yAxisData,
+        backgroundColor = MaterialTheme.colorScheme.surface,
+        chartData = barsData
+    )
+
+    BarChart(
+        modifier = modifier
+            .height(350.dp)
+            .fillMaxWidth()
+            .padding(top = 8.dp),
+        barChartData = barsDataTemp
+    )
 }
 
 @Preview(showBackground = true)
