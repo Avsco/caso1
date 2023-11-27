@@ -16,13 +16,13 @@ class CarRental @Inject constructor() : ViewModel() {
     val dataState: StateFlow<DataState> = _dataState.asStateFlow()
 
     data class DataState(
-        val daysInformation: List<InfoDay> = listOf(),
+        val daysInformation: List<List<InfoDay>> = listOf(listOf()),
         val filter: Int = 1,
-        val balance: Int = 0
+        val balance: List<Int> = listOf(0, 0, 0, 0)
     )
 
     init {
-        initializate(1)
+        initializate()
     }
 
     fun updateFilter(newFilter: Int) {
@@ -31,24 +31,36 @@ class CarRental @Inject constructor() : ViewModel() {
                 filter = newFilter
             )
         }
-        initializate(newFilter)
     }
 
     fun updateBalance() {
-        val newBalance = _dataState.value.daysInformation.fold(0) { acc, it -> it.rentGenerated + acc }
+        val newBalances: MutableList<Int> = mutableListOf()
+
+        repeat(_dataState.value.daysInformation.size) { cars ->
+            val newBalance = _dataState.value.daysInformation.get(cars)
+                .fold(0) { acc, it -> it.rentGenerated + acc }
+
+            newBalances.add(newBalance)
+        }
 
         _dataState.update {
             it.copy(
-                balance = newBalance
+                balance = newBalances.toList()
             )
         }
     }
 
-    fun initializate(quantityCars: Int) {
-        val daysInformation = mutableListOf<InfoDay>()
-        repeat(365) {
-            val infoPerDay = balancePerDay(quantityCars)
-            daysInformation.add(infoPerDay)
+    fun initializate() {
+        val daysInformation = mutableListOf<List<InfoDay>>()
+        repeat(4) { quantityCars ->
+
+            val carInformation = mutableListOf<InfoDay>()
+            repeat(365) {
+                val infoPerDay = balancePerDay(quantityCars + 1)
+                carInformation.add(infoPerDay)
+            }
+
+            daysInformation.add(carInformation.toList())
         }
         _dataState.update {
             it.copy(
@@ -86,14 +98,5 @@ class CarRental @Inject constructor() : ViewModel() {
             penalty + (rentAccumulated * Probability.COST_PER_RENT) - (carsNoRent * Probability.IDLE)
 
         return InfoDay(carsToRent, penalty, carsNoRent, balance, rentAccumulated)
-    }
-
-    fun getFullBalance(): Int {
-        return dataState.value.daysInformation.fold(0) { acc, it -> it.rentGenerated + acc }
-    }
-
-    fun getADayFromInformation(day: Int): InfoDay? {
-        if (dataState.value.daysInformation.size < day) return null
-        return dataState.value.daysInformation.get(day - 1)
     }
 }

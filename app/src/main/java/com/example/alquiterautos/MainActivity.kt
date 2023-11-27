@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,10 +16,15 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -40,12 +46,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import co.yml.charts.axis.AxisData
-import co.yml.charts.axis.DataCategoryOptions
 import co.yml.charts.common.model.Point
-import co.yml.charts.common.utils.DataUtils
 import co.yml.charts.ui.barchart.BarChart
 import co.yml.charts.ui.barchart.models.BarChartData
-import co.yml.charts.ui.barchart.models.BarChartType
 import co.yml.charts.ui.barchart.models.BarData
 import com.example.alquiterautos.model.CarRental
 import com.example.alquiterautos.ui.theme.AlquiterAutosTheme
@@ -110,7 +113,10 @@ fun LayoutRentCars(modifier: Modifier = Modifier, viewModel: CarRental = hiltVie
             }
         }
         Text(
-            text = stringResource(id = R.string.rentGenerated, dataState.balance.toString()),
+            text = stringResource(
+                id = R.string.rentGenerated,
+                dataState.balance.get(dataState.filter - 1).toString()
+            ),
             style = MaterialTheme.typography.bodyLarge,
             modifier = modifier.padding(bottom = 64.dp)
         )
@@ -137,7 +143,8 @@ fun LayoutRentCars(modifier: Modifier = Modifier, viewModel: CarRental = hiltVie
             Text(
                 text = stringResource(
                     R.string.rentGenerated,
-                    dataState.daysInformation.get(confirmedDay.toInt()).rentGenerated
+                    dataState.daysInformation.get(dataState.filter - 1)
+                        .get(confirmedDay.toInt()).rentGenerated
                 )
             )
             Spacer(modifier = modifier.height(8.dp))
@@ -150,32 +157,49 @@ fun LayoutRentCars(modifier: Modifier = Modifier, viewModel: CarRental = hiltVie
             Text(
                 text = stringResource(
                     R.string.carsToRent,
-                    dataState.daysInformation.get(confirmedDay.toInt()).carsToRent
+                    dataState.daysInformation.get(dataState.filter - 1)
+                        .get(confirmedDay.toInt()).carsToRent
                 )
             )
             Spacer(modifier = modifier.height(8.dp))
             Text(
                 text = stringResource(
                     R.string.carsNoRent,
-                    dataState.daysInformation.get(confirmedDay.toInt()).carsNoRent
+                    dataState.daysInformation.get(dataState.filter - 1)
+                        .get(confirmedDay.toInt()).carsNoRent
                 )
             )
             Spacer(modifier = modifier.height(8.dp))
             Text(
                 text = stringResource(
                     R.string.daysRent,
-                    dataState.daysInformation.get(confirmedDay.toInt()).daysRented
+                    dataState.daysInformation.get(dataState.filter - 1)
+                        .get(confirmedDay.toInt()).daysRented
                 )
             )
         }
         Row(modifier = modifier.fillMaxWidth()) {
-            BarChartComposable()
+            BarChartComposable(balances = dataState.balance)
         }
     }
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(50.dp)
+            .padding(horizontal = 16.dp),
+        content = {
+            FloatingActionButton(
+                onClick = { viewModel.initializate() },
+                shape = RoundedCornerShape(50.dp)
+            ) {
+                Icon(Icons.Filled.Refresh, "Floating action button.")
+            }
+        }
+    )
 }
 
 @Composable
-fun BarChartComposable(modifier: Modifier = Modifier) {
+fun BarChartComposable(modifier: Modifier = Modifier, balances: List<Int>) {
     val stepSize = 5
     val barsData = listOf(
         BarData(
@@ -186,25 +210,25 @@ fun BarChartComposable(modifier: Modifier = Modifier) {
         ),
         BarData(
             label = "1 auto",
-            point = Point(2f, 1f),
+            point = Point(2f, balances.get(0).toFloat()),
             description = "asd",
             color = MaterialTheme.colorScheme.secondary
         ),
         BarData(
             label = "2 autos",
-            point = Point(3f, 2f),
+            point = Point(3f, balances.get(1).toFloat()),
             description = "asd",
             color = MaterialTheme.colorScheme.secondary
         ),
         BarData(
             label = "3 autos",
-            point = Point(4f, 3f),
+            point = Point(4f, balances.get(2).toFloat()),
             description = "asd",
             color = MaterialTheme.colorScheme.secondary
         ),
         BarData(
             label = "4 autos",
-            point = Point(5f, 2f),
+            point = Point(5f, balances.get(3).toFloat()),
             description = "asd",
             color = MaterialTheme.colorScheme.secondary
         ),
