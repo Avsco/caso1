@@ -1,6 +1,7 @@
 package com.example.alquiterautos.model
 
 import androidx.lifecycle.ViewModel
+import com.example.alquiterautos.data.InfoCar
 import com.example.alquiterautos.data.InfoDay
 import com.example.alquiterautos.data.Probability
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,7 +19,13 @@ class CarRental @Inject constructor() : ViewModel() {
     data class DataState(
         val daysInformation: List<List<InfoDay>> = listOf(listOf()),
         val filter: Int = 1,
-        val balance: List<Int> = listOf(0, 0, 0, 0)
+        val balance: List<Int> = listOf(0, 0, 0, 0),
+        val typeCars: List<InfoCar> = listOf(
+            InfoCar(price = 0, model = "", leisureCost = 0, availableCost = 0),
+            InfoCar(price = 0, model = "", leisureCost = 0, availableCost = 0),
+            InfoCar(price = 0, model = "", leisureCost = 0, availableCost = 0),
+            InfoCar(price = 0, model = "", leisureCost = 0, availableCost = 0),
+        )
     )
 
     init {
@@ -29,6 +36,17 @@ class CarRental @Inject constructor() : ViewModel() {
         _dataState.update {
             it.copy(
                 filter = newFilter
+            )
+        }
+    }
+
+    fun updateTypeCar(index: Int, car: InfoCar) {
+        _dataState.update {
+            it.copy(
+                typeCars = _dataState.value.typeCars.mapIndexed { i, infoCar ->
+                    if(i == index) car
+                    else infoCar
+                }
             )
         }
     }

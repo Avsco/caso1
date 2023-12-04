@@ -1,11 +1,36 @@
 <resources>
     <string name="app_name">Alquiler de Autos</string>
+    <string name="simulation">Resultados por cantidad de autos</string>
+    <string name="params">Parámetros</string>
+    <string name="results">Análisis final</string>
+    <string name="graphic">Gráfica comparativa</string>
+
     <string name="title">Simulador de alquiler de autos</string>
     <string name="rentGenerated">Renta generada: %s</string>
-    <string name="carsToRent">Autos a rentar %d</string>
-    <string name="carsNoRent">Autos no rentados %d</string>
-    <string name="carsRent">Autos rentados %d</string>
+    <string name="carsToRent">Autos que se rentaron</string>
+    <string name="carsNoRent">Autos no rentados</string>
+    <string name="carsRent">Autos para rentar</string>
     <string name="daysRent">Dias rentados %d</string>
+    <string name="back_button">Back</string>
+
+    <string name="welcome">Bienvenido</string>
+    <string name="description">Una aplicación para empresas de alquiler de vehículos que, mediante simulaciones, determina la cantidad óptima de automóviles a comprar para maximizar ganancias y minimizar costos.  </string>
+    <string name="init_simulation">Iniciar simulación</string>
+
+    <string name="input_model">* Modelo %d</string>
+    <string name="input_price">* Precio alquiler</string>
+    <string name="input_leisure_cost">* Costo ocio</string>
+    <string name="input_available_cost">* Costo no disponible</string>
+
+    <string name="simulated_time">Tiempo simulado</string>
+    <string name="total_revenue">Ingreso total</string>
+    <string name="total_cost">Costo total</string>
+    <string name="utility">Utilidad neta</string>
+    <string name="custom_days">%d diás</string>
+    <string name="custom_currency">%d bs</string>
+    <string name="unit_cost">Costo unitario</string>
+
+    <string name="quantity_cars">Cantidad autos</string>
 
     <plurals name="car">
         <item quantity="one">%d auto</item>
