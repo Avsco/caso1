@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -23,6 +24,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.alquiterautos.data.InfoCar
 import com.example.alquiterautos.model.CarRental
 import com.example.alquiterautos.ui.screen.GraphicScreen
 import com.example.alquiterautos.ui.screen.LayoutRentCars
@@ -51,7 +53,8 @@ fun Case1AppBar(
     canNavigateBack: Boolean,
     navigateUp: () -> Unit,
     modifier: Modifier = Modifier,
-    showReload: Boolean
+    showReload: Boolean,
+    reloadAction: () -> Unit
 ) {
     TopAppBar(
         title = { Text(stringResource(currentScreen.title)) },
@@ -71,7 +74,7 @@ fun Case1AppBar(
         },
         actions = {
             if (showReload) {
-                IconButton(onClick = { /*TODO*/ }) {
+                IconButton(onClick = { reloadAction() }) {
                     Icon(
                         imageVector = Icons.Filled.Refresh,
                         contentDescription = "Volver a simular"
@@ -85,10 +88,12 @@ fun Case1AppBar(
 @Composable
 fun Case1App(
     viewModel: CarRental = hiltViewModel(),
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
+    generatePdf: (List<Int>, List<InfoCar>) -> Unit
 ) {
     // Get current back stack entry
     val backStackEntry by navController.currentBackStackEntryAsState()
+    val dataState by viewModel.dataState.collectAsState()
     // Get the name of the current screen
     val currentScreen = Caso1Screen.valueOf(
         backStackEntry?.destination?.route ?: Caso1Screen.Start.name
@@ -100,7 +105,8 @@ fun Case1App(
                 currentScreen = currentScreen,
                 canNavigateBack = navController.previousBackStackEntry != null,
                 navigateUp = { navController.navigateUp() },
-                showReload = currentScreen.name == Caso1Screen.Results.name
+                showReload = currentScreen.name == Caso1Screen.Results.name,
+                reloadAction = { viewModel.initializate() }
             )
         }
     ) { innerPadding ->
@@ -121,6 +127,7 @@ fun Case1App(
                 ParamsScreen(
                     viewModel = viewModel,
                     onNextScreen = {
+                        viewModel.initializate()
                         navController.navigate(Caso1Screen.Results.name)
                     },
                 )
@@ -129,7 +136,7 @@ fun Case1App(
                 ResultsScreen(
                     viewModel = viewModel,
                     onGenerateReport = {
-                        // TODO
+                        generatePdf(dataState.balance, dataState.typeCars)
                     },
                     onSeeResultsPerCar = {
                         navController.navigate(Caso1Screen.Simulation.name)

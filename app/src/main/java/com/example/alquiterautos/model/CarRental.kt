@@ -21,10 +21,30 @@ class CarRental @Inject constructor() : ViewModel() {
         val filter: Int = 1,
         val balance: List<Int> = listOf(0, 0, 0, 0),
         val typeCars: List<InfoCar> = listOf(
-            InfoCar(price = 0, model = "", leisureCost = 0, availableCost = 0),
-            InfoCar(price = 0, model = "", leisureCost = 0, availableCost = 0),
-            InfoCar(price = 0, model = "", leisureCost = 0, availableCost = 0),
-            InfoCar(price = 0, model = "", leisureCost = 0, availableCost = 0),
+            InfoCar(
+                price = Probability.COST_PER_RENT,
+                model = "M201 Furgón Cargo",
+                leisureCost = Probability.IDLE,
+                availableCost = Probability.COST_PER_NO_RENT
+            ),
+            InfoCar(
+                price = Probability.COST_PER_RENT,
+                model = "Sunray Escolar",
+                leisureCost = Probability.IDLE,
+                availableCost = Probability.COST_PER_NO_RENT
+            ),
+            InfoCar(
+                price = Probability.COST_PER_RENT,
+                model = "MD 201 Cargo Box",
+                leisureCost = Probability.IDLE,
+                availableCost = Probability.COST_PER_NO_RENT
+            ),
+            InfoCar(
+                price = Probability.COST_PER_RENT,
+                model = "Nueva Oroch Zen",
+                leisureCost = Probability.IDLE,
+                availableCost = Probability.COST_PER_NO_RENT
+            ),
         )
     )
 
@@ -69,6 +89,17 @@ class CarRental @Inject constructor() : ViewModel() {
     }
 
     fun initializate() {
+
+        _dataState.update {
+            it.copy(
+                typeCars = dataState.value.typeCars.map {
+                    it.copy(
+                        accBalance = 0
+                    )
+                }
+            )
+        }
+
         val daysInformation = mutableListOf<List<InfoDay>>()
         repeat(4) { quantityCars ->
 
@@ -92,29 +123,33 @@ class CarRental @Inject constructor() : ViewModel() {
         val randomNumber = Math.random()
         val carsToRent = Probability.getNumberCarsRentedPerDay(randomNumber)
 
-        val penalty: Int = if (carsToRent > quantityCars) {
-            -(Probability.COST_PER_NO_RENT * (carsToRent - quantityCars))
-        } else {
-            0
+
+        var penalty = 0
+        repeat(-(carsToRent - quantityCars)) {
+            val carNoRent = dataState.value.typeCars[3 - it].availableCost
+            if (quantityCars == 4) {
+                dataState.value.typeCars[3 - it].accBalance -= carNoRent
+            }
+            penalty += carNoRent
         }
 
         var rentAccumulated = 0
         var carsNoRent = 0
+        var accDaysPerRent = 0
 
         repeat(if (carsToRent >= quantityCars) quantityCars else carsToRent) {
             val randomNumber = Math.random()
             val daysPerRent = Probability.getNumberDaysRentedPerCar(randomNumber)
 
-            if (daysPerRent === 0) {
-                carsNoRent++
+            accDaysPerRent += daysPerRent
+            rentAccumulated += dataState.value.typeCars[it].price * daysPerRent
+            if (quantityCars == 4) {
+                dataState.value.typeCars[it].accBalance += dataState.value.typeCars[it].price * daysPerRent
             }
-
-            rentAccumulated += daysPerRent
         }
 
-        val balance =
-            penalty + (rentAccumulated * Probability.COST_PER_RENT) - (carsNoRent * Probability.IDLE)
+        val balance = penalty + rentAccumulated
 
-        return InfoDay(carsToRent, penalty, carsNoRent, balance, rentAccumulated)
+        return InfoDay(carsToRent, penalty, carsNoRent, balance, accDaysPerRent)
     }
 }

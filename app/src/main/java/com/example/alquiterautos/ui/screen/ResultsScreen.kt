@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -40,7 +42,7 @@ fun ResultsScreen(
 
     val rentAccumulated = dataState.daysInformation[indexMaxBalance]
         .map { it.daysRented }
-        .reduce { acc, i -> (i *  Probability.COST_PER_RENT) + acc }
+        .reduce { acc, i -> (i * Probability.COST_PER_RENT) + acc }
 
     val penaltyAccumulated = dataState.daysInformation[indexMaxBalance]
         .map { it.penalty }
@@ -50,7 +52,9 @@ fun ResultsScreen(
         .map { it.carsNoRent }
         .reduce { acc, i -> (i * Probability.COST_PER_NO_RENT) + acc }
 
-    Column(modifier = modifier.padding(42.dp)) {
+    val maxCar = dataState.typeCars.maxBy { it.accBalance }
+
+    Column(modifier = modifier.padding(42.dp).verticalScroll(rememberScrollState())) {
         Text(text = "La cantidad óptima de automóviles a comprar son ${indexMaxBalance + 1} los cuales nos genera el siguiente resultado financiero: ")
         Column(modifier = modifier.padding(all = 30.dp)) {
             InfoCell(
@@ -80,8 +84,11 @@ fun ResultsScreen(
                 text = stringResource(id = R.string.custom_currency, maxBalance),
             )
         }
+        Text(text = "El auto que más rentabilidad genero es: " + maxCar.model + ", con " + maxCar.accBalance.toString())
+        Spacer(modifier = modifier.height(10.dp))
         Text(text = "Los modelos rentados son:  ")
-        LazyColumn(modifier = modifier.padding(all = 30.dp)){
+        Spacer(modifier = modifier.height(5.dp))
+        LazyColumn(modifier = modifier.height(120.dp)){
             items(dataState.typeCars, key = { it.model }) {
                 Text(text = it.model)
             }

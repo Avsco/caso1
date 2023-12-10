@@ -24,7 +24,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -41,7 +40,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.alquiterautos.R
-import com.example.alquiterautos.data.InfoCar
+import com.example.alquiterautos.data.Probability
 import com.example.alquiterautos.model.CarRental
 import com.example.alquiterautos.ui.component.InfoCell
 import com.example.alquiterautos.ui.component.InfoCellLine
@@ -59,6 +58,22 @@ fun LayoutRentCars(
     val dataState by viewModel.dataState.collectAsState()
     var day by remember { mutableStateOf("1") }
     var confirmedDay by remember { mutableStateOf("1") }
+    val currentDayFilter = dataState.daysInformation[dataState.filter - 1][confirmedDay.toInt() - 1]
+
+    val maxBalance = dataState.balance.maxOrNull() ?: 0
+    val indexMaxBalance = dataState.balance.indexOf(maxBalance)
+
+    val rentAccumulated = dataState.daysInformation[indexMaxBalance]
+        .map { it.daysRented }
+        .reduce { acc, i -> (i * Probability.COST_PER_RENT) + acc }
+
+    val penaltyAccumulated = dataState.daysInformation[indexMaxBalance]
+        .map { it.penalty }
+        .reduce { acc, i -> (i * Probability.IDLE) + acc }
+
+    val noRentCars = dataState.daysInformation[indexMaxBalance]
+        .map { it.carsNoRent }
+        .reduce { acc, i -> (i * Probability.COST_PER_NO_RENT) + acc }
 
     Column(modifier = modifier.padding(8.dp)) {
         LazyHorizontalGrid(
@@ -105,30 +120,30 @@ fun LayoutRentCars(
                 }
             }
             items(
-                listOf(
-                    InfoCar(
-                        availableCost = 10,
-                        leisureCost = 10,
-                        model = "Modelo 1",
-                        price = 10
-                    )
-                ), key = { it.model }) {
+                dataState.typeCars.subList(0, dataState.filter), key = { it.model }) {
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = modifier.fillMaxWidth()
                 ) {
-                    Text(it.model, modifier = modifier.weight(0.25f))
+                    Text(
+                        it.model,
+                        modifier = modifier.weight(0.25f),
+                        style = MaterialTheme.typography.labelSmall
+                    )
                     Text(
                         stringResource(id = R.string.custom_currency, it.price),
-                        modifier = modifier.weight(0.25f)
+                        modifier = modifier.weight(0.25f),
+                        style = MaterialTheme.typography.labelSmall
                     )
                     Text(
                         stringResource(id = R.string.custom_currency, it.leisureCost),
-                        modifier = modifier.weight(0.25f)
+                        modifier = modifier.weight(0.25f),
+                        style = MaterialTheme.typography.labelSmall
                     )
                     Text(
                         stringResource(id = R.string.custom_currency, it.availableCost),
-                        modifier = modifier.weight(0.25f)
+                        modifier = modifier.weight(0.25f),
+                        style = MaterialTheme.typography.labelSmall
                     )
                 }
             }
@@ -173,20 +188,23 @@ fun LayoutRentCars(
             )
             InfoCell(
                 title = stringResource(id = R.string.total_revenue),
-                text = stringResource(id = R.string.custom_currency, 100000),
+                text = stringResource(id = R.string.custom_currency, rentAccumulated),
             )
             InfoCell(
                 title = stringResource(id = R.string.total_cost),
-                text = stringResource(id = R.string.custom_currency, 100000),
+                text = stringResource(
+                    id = R.string.custom_currency,
+                    penaltyAccumulated + noRentCars
+                ),
             )
             Column(modifier = modifier.padding(start = 30.dp)) {
                 InfoCell(
                     title = stringResource(id = R.string.input_leisure_cost),
-                    text = stringResource(id = R.string.custom_currency, 1000),
+                    text = stringResource(id = R.string.custom_currency, penaltyAccumulated),
                 )
                 InfoCell(
                     title = stringResource(id = R.string.input_available_cost),
-                    text = stringResource(id = R.string.custom_currency, 1000),
+                    text = stringResource(id = R.string.custom_currency, noRentCars),
                 )
             }
             InfoCell(
@@ -238,17 +256,19 @@ fun LayoutRentCars(
                 title = stringResource(id = R.string.total_revenue),
                 text = stringResource(
                     id = R.string.custom_currency,
-                    dataState.daysInformation.get(dataState.filter - 1)
-                        .get(confirmedDay.toInt()).rentGenerated
+                    currentDayFilter.rentGenerated
                 ),
             )
             InfoCell(
                 title = stringResource(id = R.string.total_cost),
-                text = stringResource(id = R.string.custom_currency, 100000),
+                text = stringResource(id = R.string.custom_currency, currentDayFilter.penalty)
             )
             InfoCell(
                 title = stringResource(id = R.string.utility),
-                text = stringResource(id = R.string.custom_currency, 100000),
+                text = stringResource(
+                    id = R.string.custom_currency,
+                    currentDayFilter.rentGenerated - currentDayFilter.penalty
+                ),
             )
             InfoCell(
                 title = stringResource(id = R.string.carsRent),
@@ -256,18 +276,20 @@ fun LayoutRentCars(
             )
             InfoCell(
                 title = stringResource(id = R.string.carsToRent),
-                text = dataState.daysInformation.get(dataState.filter - 1)
-                    .get(confirmedDay.toInt()).carsToRent.toString(),
+                text = currentDayFilter.carsToRent.toString(),
             )
             InfoCell(
                 title = stringResource(id = R.string.carsNoRent),
-                text = dataState.daysInformation.get(dataState.filter - 1)
-                    .get(confirmedDay.toInt()).carsNoRent.toString(),
+                text = (dataState.filter - currentDayFilter.carsNoRent).toString(),
             )
         }
-        Button(onClick = { onEndSimulation() }, modifier = modifier.padding(top = 20.dp).align(
-            Alignment.CenterHorizontally
-        )) {
+        Button(
+            onClick = { onEndSimulation() }, modifier = modifier
+                .padding(top = 20.dp)
+                .align(
+                    Alignment.CenterHorizontally
+                )
+        ) {
             Text(text = "Terminar simulación")
         }
     }

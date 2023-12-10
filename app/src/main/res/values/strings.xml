@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Alquiler de Autos</string>
+    <string name="app_name">CAR - RENT</string>
     <string name="simulation">Resultados por cantidad de autos</string>
     <string name="params">Parámetros</string>
     <string name="results">Análisis final</string>

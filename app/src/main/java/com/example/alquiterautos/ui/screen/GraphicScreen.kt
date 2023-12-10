@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -27,7 +29,12 @@ fun GraphicScreen(
 ) {
     val dataState by viewModel.dataState.collectAsState()
 
-    Column(modifier = modifier.padding(vertical = 10.dp, horizontal = 54.dp)) {
+    val maxBalance = dataState.balance.maxOrNull() ?: 0
+    val indexMaxBalance = dataState.balance.indexOf(maxBalance)
+
+    Column(modifier = modifier.padding(vertical = 10.dp, horizontal = 54.dp).verticalScroll(
+        rememberScrollState()
+    )) {
         Text("Esta gráfica facilita el análisis de los resultados obtenidos para cada cantidad simulada de autos. Permite identificar claramente la cantidad óptima de autos a comprar. A continuación se muestra la gráfica:  ")
         Row(
             modifier = modifier
@@ -38,7 +45,7 @@ fun GraphicScreen(
         {
             BarChartComposable(balances = dataState.balance)
         }
-        Text(text = "Observando la gráfica, se determina que la cantidad óptima de autos a adquirir es X.")
+        Text(text = "Observando la gráfica, se determina que la cantidad óptima de autos a adquirir es ${indexMaxBalance + 1}.")
         Button(onClick = { onBack() }, modifier = modifier
             .align(Alignment.CenterHorizontally)
             .padding(top = 10.dp)) {
