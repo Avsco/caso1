@@ -27,6 +27,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.alquiterautos.data.InfoCar
 import com.example.alquiterautos.model.CarRental
 import com.example.alquiterautos.ui.screen.GraphicScreen
+import com.example.alquiterautos.ui.screen.HistoryScreen
 import com.example.alquiterautos.ui.screen.LayoutRentCars
 import com.example.alquiterautos.ui.screen.ParamsScreen
 import com.example.alquiterautos.ui.screen.ResultsScreen
@@ -40,7 +41,8 @@ enum class Caso1Screen(@StringRes val title: Int) {
     Simulation(title = R.string.simulation),
     Params(title = R.string.params),
     Results(title = R.string.results),
-    Graphic(title = R.string.graphic)
+    Graphic(title = R.string.graphic),
+    History(title = R.string.history)
 }
 
 /**
@@ -121,6 +123,9 @@ fun Case1App(
                     onNext = {
                         navController.navigate(Caso1Screen.Params.name)
                     },
+                    onGoToHistory = {
+                        navController.navigate(Caso1Screen.History.name)
+                    }
                 )
             }
             composable(route = Caso1Screen.Params.name) {
@@ -166,6 +171,9 @@ fun Case1App(
                 GraphicScreen(viewModel = viewModel, onBack = {
                     navController.navigateUp()
                 })
+            }
+            composable(route = Caso1Screen.History.name) {
+                HistoryScreen(viewModel = viewModel)
             }
         }
     }

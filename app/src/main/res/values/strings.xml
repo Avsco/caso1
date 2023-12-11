@@ -4,6 +4,7 @@
     <string name="params">Parámetros</string>
     <string name="results">Análisis final</string>
     <string name="graphic">Gráfica comparativa</string>
+    <string name="history">Historial</string>
 
     <string name="title">Simulador de alquiler de autos</string>
     <string name="rentGenerated">Renta generada: %s</string>

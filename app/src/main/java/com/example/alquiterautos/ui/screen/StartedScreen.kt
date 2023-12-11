@@ -11,6 +11,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import com.example.alquiterautos.R
 
 @Composable
-fun StartedScreen(onNext: () -> Unit = {}, modifier: Modifier = Modifier) {
+fun StartedScreen(onNext: () -> Unit = {}, modifier: Modifier = Modifier, onGoToHistory: () -> Unit = {}) {
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -46,6 +47,9 @@ fun StartedScreen(onNext: () -> Unit = {}, modifier: Modifier = Modifier) {
         Spacer(modifier = modifier.height(80.dp))
         Button(onClick = { onNext() }) {
             Text(text = stringResource(id = R.string.init_simulation))
+        }
+        TextButton(onClick = { onGoToHistory() }) {
+            Text(text = stringResource(id = R.string.history))
         }
     }
 }

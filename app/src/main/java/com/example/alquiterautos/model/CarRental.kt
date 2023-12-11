@@ -3,6 +3,7 @@ package com.example.alquiterautos.model
 import androidx.lifecycle.ViewModel
 import com.example.alquiterautos.data.InfoCar
 import com.example.alquiterautos.data.InfoDay
+import com.example.alquiterautos.data.PersistenceSimulation
 import com.example.alquiterautos.data.Probability
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -45,12 +46,13 @@ class CarRental @Inject constructor() : ViewModel() {
                 leisureCost = Probability.IDLE,
                 availableCost = Probability.COST_PER_NO_RENT
             ),
-        )
+        ),
+        val persistenceDB: List<PersistenceSimulation> = listOf()
     )
 
-    init {
-        initializate()
-    }
+//    init {
+//        initializate()
+//    }
 
     fun updateFilter(newFilter: Int) {
         _dataState.update {
@@ -117,6 +119,16 @@ class CarRental @Inject constructor() : ViewModel() {
             )
         }
         updateBalance()
+
+        _dataState.update {
+            it.copy(
+                persistenceDB = dataState.value.persistenceDB.plus(
+                    PersistenceSimulation(
+                        dataState.value.balance,
+                        dataState.value.typeCars.maxBy { it.accBalance })
+                )
+            )
+        }
     }
 
     private fun balancePerDay(quantityCars: Int): InfoDay {
